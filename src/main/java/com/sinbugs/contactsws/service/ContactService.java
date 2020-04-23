@@ -28,4 +28,12 @@ public class ContactService {
         }
         return null;
     }
+
+    public void delete(Long id){
+        Optional<Contact> optionalContact = dao.findById(id);
+        if (optionalContact.isPresent()){
+            dao.deleteById(id);
+        }
+
+    }
 }

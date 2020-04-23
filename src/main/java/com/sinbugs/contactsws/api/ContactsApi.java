@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import javax.websocket.server.PathParam;
 import java.util.Optional;
 
 /**
@@ -19,19 +20,35 @@ public class ContactsApi {
     @Autowired
     private Mapper mapper;
 
-    @RequestMapping( value = "/product",  method = RequestMethod.GET)
-    public ContactResponse getById(@RequestParam("id") Long id){
+    @RequestMapping( path = "/contacts/getContact/{id}",  method = RequestMethod.GET)
+    public ContactResponse getById(@PathVariable("id") Long id){
         Contact contact =  contactService.getById(id);
         return mapper.map(contact, ContactResponse.class);
 
 
     }
 
-    @RequestMapping (value = "/contact", method = RequestMethod.POST)
-    public ContactResponse updateOrSave (@RequestBody @Valid ContactRequest contactRequest) {
+    @RequestMapping (path = "/contacts/newContact", method = RequestMethod.POST)
+    public ContactResponse createContact (@RequestBody @Valid ContactRequest contactRequest) {
         Contact contact = mapper.map(contactRequest, Contact.class);
         Contact updateContact= contactService.save(contact);
         return mapper.map(updateContact, ContactResponse.class);
+    }
+
+    @RequestMapping (path = "/contacts/updateContact", method = RequestMethod.PUT)
+    public ContactResponse updateContact (@RequestBody @Valid ContactRequest contactRequest ){
+        Contact contact = mapper.map(contactRequest, Contact.class);
+        Contact updateContact = contactService.getById(contact.getId());
+        updateContact.setPhoneNumber(contact.getPhoneNumber());
+        updateContact.setEmail(contact.getEmail());
+        updateContact = contactService.save(updateContact);
+        return mapper.map(updateContact, ContactResponse.class);
+    }
+
+
+    @RequestMapping (path = "/contacts/deleteContact", method = RequestMethod.DELETE)
+    public void deleteContact (@PathParam("id") Long id ){
+        contactService.delete(id);
     }
 
 
